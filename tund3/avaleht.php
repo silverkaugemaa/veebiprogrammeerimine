@@ -74,6 +74,10 @@
 	?>
 	
 
-
+	<p> Meie õpime <a href="http://www.tlu.ee">Tallinna Ülikkolis</a>.</p>
+	<p>Minu esimene php leht on <a href="../esimene.php">siin</a>.</p>
+	<p>Minu sõbra Caspari leht on <a href="../../../~seppcasp">siin</a>.</p>
+	<p>pilte näeb <a href="foto.php">siin</a>.</p>
+	
 </body>
 </html>
