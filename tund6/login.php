@@ -1,6 +1,6 @@
 <?php
 	
-	require("../../../config.php");
+	//require("../../../config.php");
 	require("functions.php");
 	
 
@@ -197,6 +197,8 @@
 	<title>Sisselogimine või uue kasutaja loomine</title>
 </head>
 <body>
+	<h1>Heade mõtete veeb</h1>
+	<p>Värskeim hea mõte: <span><?php echo latestIdea(); ?></span></p>
 	<h1>Logi sisse!</h1>
 	<p>Siin harjutame sisselogimise funktsionaalsust.</p>
 	

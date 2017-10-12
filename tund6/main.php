@@ -56,6 +56,7 @@
 
 	<p><a href="?logout=1">Logi välja</a>!</p>
 	<p><a href="usersinfo.php">Kasutajate info</a></p>
+	<p><a href="userideas.php">Head mõtted</a></p>
 	<p>Üks pilt Tallinna Ülikoolist!</p>
 	<img src="<?php echo $picDir .$picFile; ?>" alt="Tallinna Ülikool">
 	

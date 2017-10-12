@@ -59,6 +59,60 @@ require("../../../config.php");
 		}
 		$stmt->close();
 		$mysqli->close();
+		
+	}
+	
+	//mõtete salvestamine
+	function saveIdea($idea, $color){
+		$notice = "";
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
+		$stmt = $mysqli->prepare("INSERT INTO vpuserideas (userid, idea, ideacolor) VALUES (?, ?, ?)");
+		echo $mysqli->error;
+		$stmt->bind_param("iss", $_SESSION["userId"], $idea, $color);
+		if($stmt->execute()){
+			$notice = "Mõte on salvestatud!";
+		} else {
+			$notice = "Mõtte salvestamisel tekkis viga: " .$stmt->error;
+		}
+		$stmt->close();
+		$mysqli->close();
+		return $notice;
+	}
+	
+	function listIdeas(){
+		$notice = "";
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
+		$stmt = $mysqli->prepare("SELECT idea, ideacolor FROM vpuserideas ORDER BY id DESC");
+		echo $mysqli->error;
+		$stmt->bind_param("i", $_SESSION["userId"]);
+		
+		$stmt->bind_result($idea, $color);
+		$stmt->execute();
+		
+		while($stmt->fetch()){
+			//<p style="background-color:#ff5566"->Hea mõte</p>
+			$notice .='<p style="background-color: ' .$color .'">' .$idea ."</p> \n";
+		}
+		
+		$stmt->close();
+		$mysqli->close();
+		return $notice;
+	}
+	
+	//uusima idee lugemine
+	function latestIdea(){
+		//$ideaHTML = "";
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
+		$stmt = $mysqli->prepare("SELECT idea FROM vpuserideas WHERE id = (SELECT MAX(id) FROM vpuserideas)");
+		echo $mysqli->error;
+		$stmt->bind_result($idea);
+		
+		$stmt->execute();
+		$stmt->fetch();
+		
+		$stmt->close();
+		$mysqli->close();
+		return $idea;
 	}
 	
 	//sisestuse kontrollimine
