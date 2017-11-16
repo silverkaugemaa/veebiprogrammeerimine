@@ -1,5 +1,6 @@
 <?php
 	require("functions.php");
+	require("classes/Photoupload.class.php");
 	$notice = "";
 	
 	//kui pole sisseloginud, siis sisselogimise lehele
@@ -15,6 +16,11 @@
 		header("Location: login.php");
 	}
 	
+	//classi esimene näide
+	/*$esimene = new Photoupload("Kaval trikk");
+	echo $esimene->testPublic;
+	$teine=new Photoupload("ja nii juba mitu korda ");*/
+	
 	//Algab foto laadimise osa
 	$target_dir = "../../pics/";
 	$target_file = "";
@@ -23,17 +29,23 @@
 	$maxHeight = 400;
 	$marginHor = 10;
 	$marginVer = 10;
-		
+	$marginBottom = 10;
+	$marginRight = 10;
+	
 	//kas vajutati laadimise nuppu
 	if(isset($_POST["submit"])) {
 		//kas fail on valitud, failinimi olemas
 		if(!empty($_FILES["fileToUpload"]["name"])){
 			
-			//$target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
-			$imageFileType = strtolower(pathinfo(basename($_FILES["fileToUpload"]["name"]))["extension"]);
-			$timeStamp = microtime(1) *10000;
-			$target_file = $target_dir . pathinfo(basename($_FILES["fileToUpload"]["name"]))["filename"] ."_" .$timeStamp ."." .$imageFileType;
-			//$target_file = "hmv_" .$timeStamp ."." .$imageFileType;
+			//fikseerin faili nimelaiendi
+			$imageFileType = strtolower(pathinfo(basename($_FILES["fileToUpload"]["name"]),PATHINFO_EXTENSION));
+			
+			//ajatempel
+			$timeStamp = microtime(1) * 10000;
+			
+			//fikseerin nime
+			//$target_file = $target_dir . pathinfo(basename($_FILES["fileToUpload"]["name"]))["filename"] ."_" .$timeStamp ."." .$imageFileType;
+			$target_file = "hmv_" .$timeStamp ."." .$imageFileType;
 			
 			//Kas on pildi failitüüp
 			$check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
@@ -45,16 +57,16 @@
 				$uploadOk = 0;
 			}
 			
-			//Kas selline pilt on juba üles laetud
+			/*Kas selline pilt on juba üles laetud
 			if (file_exists($target_file)) {
 				$notice .= "Kahjuks on selle nimega pilt juba olemas. ";
 				$uploadOk = 0;
-			}
-			//Piirame faili suuruse
+			}*/
+			/*Piirame faili suuruse
 			if ($_FILES["fileToUpload"]["size"] > 1000000) {
 				$notice .= "Pilt on liiga suur! ";
 				$uploadOk = 0;
-			}
+			}*/
 			
 			//Piirame failitüüpe
 			if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ) {
@@ -67,6 +79,17 @@
 				$notice .= "Vabandust, pilti ei laetud üles! ";
 			//Kui saab üles laadida
 			} else {		
+				
+				//kasutame klassi
+				$myPhoto = new Photoupload($_FILES["fileToUpload"]["tmp_name"], $imageFileType);
+				$myPhoto->resizePhoto($maxWidth, $maxHeight);
+				$myPhoto->addWatermark("../../graphics/hmv_logo.png", $marginRight, $marginBottom);
+				$myPhoto->addTextWatermark("Heade mõtete veeb");
+				$myPhoto->savePhoto($target_dir, $target_file);
+				//$myPhoto->saveOriginal($target_dir, $target_file);
+				$myPhoto->clearImages();
+				unset($myPhoto);
+				
 				/*if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
 					$notice .= "Fail ". basename( $_FILES["fileToUpload"]["name"]). " laeti üles! ";
 				} else {
@@ -74,7 +97,7 @@
 				}*/
 				
 				//sõltuvalt failitüübist, loon pildiobjekti
-				if($imageFileType == "jpg" or $imageFileType == "jpeg"){
+				/*if($imageFileType == "jpg" or $imageFileType == "jpeg"){
 					$myTempImage = imagecreatefromjpeg($_FILES["fileToUpload"]["tmp_name"]);
 				}
 				if($imageFileType == "png"){
@@ -82,9 +105,9 @@
 				}
 				if($imageFileType == "gif"){
 					$myTempImage = imagecreatefromgif($_FILES["fileToUpload"]["tmp_name"]);
-				}
+				}*/
 				
-				//suuruse muutmine
+				/*suuruse muutmine
 				//teeme kindlaks praeguse suuruse
 				$imageWidth = imagesx($myTempImage);
 				$imageHeight = imagesy($myTempImage);
@@ -96,24 +119,25 @@
 				}
 				//tekitame uue, sobiva suurusega pikslikogumi
 				$myImage = resizeImage($myTempImage, $imageWidth, $imageHeight, round($imageWidth / $sizeRatio), round($imageHeight / $sizeRatio));
+				*/
 				
-				//lisan vesimärgi
+				/*lisan vesimärgi
 				$stamp = imagecreatefrompng("../../graphics/hmv_logo.png");
 				$stampWidth = imagesx($stamp);
 				$stampHeight = imagesy($stamp);
 				$stampX = imagesx($myImage) - $stampWidth - $marginHor;
 				$stampY = imagesy($myImage) - $stampHeight - $marginVer;
-				imagecopy($myImage, $stamp, $stampX, $stampY, 0, 0, $stampWidth, $stampHeight);
+				imagecopy($myImage, $stamp, $stampX, $stampY, 0, 0, $stampWidth, $stampHeight);*/
 				
 				//lisan ka teksti vesimärgina
-				$textToImage = "Heade mõtete veeb";
+				//$textToImage = "Heade mõtete veeb";
 				//määrata värv
-				$textColor = imagecolorallocatealpha($myImage, 255,255,255,60);//alpha 0 - 127
+				/*$textColor = imagecolorallocatealpha($myImage, 255,255,255,60);//alpha 0 - 127
 				//mis pildile, suurus, nurk vastupäeva, x, y, värv, font, tekst
-				imagettftext($myImage, 20, -45, 10, 25, $textColor, "../../graphics/ARIAL.TTF", $textToImage);
+				imagettftext($myImage, 20, -45, 10, 25, $textColor, "../../graphics/ARIAL.TTF", $textToImage);*/
 				
 				//salvestame pildi
-				if($imageFileType == "jpg" or $imageFileType == "jpeg"){
+				/*if($imageFileType == "jpg" or $imageFileType == "jpeg"){
 					if(imagejpeg($myImage, $target_file, 90)){
 						$notice .= "Fail ". basename( $_FILES["fileToUpload"]["name"]). " laeti üles! ";
 					} else {
@@ -133,12 +157,12 @@
 					} else {
 						$notice .= "Vabandust, üleslaadimisel tekkis tõrge! ";
 					}
-				}
+				}*/
 				
 				//vabastan mälu
-				imagedestroy($myTempImage);
+				/*imagedestroy($myTempImage);
 				imagedestroy($myImage);
-				imagedestroy($stamp);
+				imagedestroy($stamp);*/
 				
 			}//saab salvestada lõppeb		
 		
@@ -147,12 +171,12 @@
 		}
 	}//if submit lõppeb
 	
-	function resizeImage($image, $origW, $origH, $w, $h){
+	/*function resizeImage($image, $origW, $origH, $w, $h){
 		$newImage = imagecreatetruecolor($w, $h);
 		//kuhu, kust, kuhu koordinaatidele x ja y, kust koordinaatidelt x ja y, kui laialt uude kohta, kui kõrgelt uude kohta, kui laialt võtta, kui kõrgelt võtta
 		imagecopyresampled($newImage, $image, 0, 0, 0, 0, $w, $h, $origW, $origH);
 		return $newImage;
-	}
+	}*/
 ?>
 
 <!DOCTYPE html>
